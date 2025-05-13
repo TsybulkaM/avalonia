@@ -1,0 +1,65 @@
+# Build results
+bin/
+obj/
+out/
+
+# Avalonia build artifacts
+*.g.cs
+*.g.i.cs
+
+# Avalonia XAML build cache
+*.axaml.cs
+*.xaml.cs
+
+# Avalonia resources
+*.resources
+
+# Avalonia Designer files
+Avalonia.DesignerSupport/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Temp files
+~$*
+*.tmp
+
+# Dotnet specific
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Packages
+*.nupkg
+*.snupkg
+*.symbols.nupkg
+packages/
+# If you have package cache outside project
+**/packages/*
+
+# NuGet v3
+*.nupkg.metadata
+
+# .NET Core
+.vs/
+*.db
+*.db-shm
+*.db-wal
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
