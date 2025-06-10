@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvaloniaApplication2", "Ava
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvaloniaApplication3", "AvaloniaApplication3\AvaloniaApplication3.csproj", "{7525A234-00C0-4384-AE3A-8C081CE4D46C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reversi", "Reversi\Reversi.csproj", "{3D534505-1E79-4F2B-A98D-F618E36E5F49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{7525A234-00C0-4384-AE3A-8C081CE4D46C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7525A234-00C0-4384-AE3A-8C081CE4D46C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7525A234-00C0-4384-AE3A-8C081CE4D46C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D534505-1E79-4F2B-A98D-F618E36E5F49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D534505-1E79-4F2B-A98D-F618E36E5F49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D534505-1E79-4F2B-A98D-F618E36E5F49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D534505-1E79-4F2B-A98D-F618E36E5F49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
