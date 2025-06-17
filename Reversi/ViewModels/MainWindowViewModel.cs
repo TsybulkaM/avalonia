@@ -1,32 +1,32 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Windows.Input;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using Reversi.Models;
 
 namespace Reversi.ViewModels;
+
 public class MainWindowViewModel : ViewModelBase
 {
     private GameBoard _gameBoard;
+    private IBot _bot;
+    
+    private int _selectedTabIndex;
+    public int SelectedTabIndex
+    {
+        get => _selectedTabIndex;
+        set => SetProperty(ref _selectedTabIndex, value);
+    }
     
     private ObservableCollection<ObservableCollection<CellViewModel>> _cells;
     public ObservableCollection<ObservableCollection<CellViewModel>> Cells => _cells;
     
-    private Color _backgroundColor = Colors.LightGray;
-    public Color BackgroundColor
+    private IBrush _systemBackgroundColor = new SolidColorBrush(Colors.LightGray);
+    public IBrush SystemBackgroundColor
     {
-        get => _backgroundColor;
-        set => SetProperty(ref _backgroundColor, value);
+        get => _systemBackgroundColor;
+        set => SetProperty(ref _systemBackgroundColor, value);
     }
     
-    private Color _playerTextColor = Colors.Black;
-    public Color PlayerTextColor
-    {
-        get => _playerTextColor;
-        set => SetProperty(ref _playerTextColor, value);
-    }
-        
     private string _currentPlayerText;
     public string CurrentPlayerText
     {
@@ -43,15 +43,31 @@ public class MainWindowViewModel : ViewModelBase
     
     public IRelayCommand NewGameCommand { get; }
     
+    public SettingsViewModel Settings { get; }
+    
     public MainWindowViewModel()
     {
+        Settings = new SettingsViewModel();
+        Settings.OnSettingsConfirmed = () => 
+        {
+            NewGameCommand.NotifyCanExecuteChanged();
+            SelectedTabIndex = 0;
+        };
+        
         _gameBoard = new GameBoard();
         _cells = new ObservableCollection<ObservableCollection<CellViewModel>>();
         
-        NewGameCommand = new RelayCommand(NewGame);
+        NewGameCommand = new RelayCommand(NewGame, CanStartGame);
+        _bot = new EvaluationBot();
         
+        SelectedTabIndex = 1;
         InitializeCells();
         UpdateGameStatus();
+    }
+    
+    private bool CanStartGame()
+    {
+        return Settings.SettingsSelected;
     }
     
     private void InitializeCells()
@@ -71,10 +87,10 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
     
-    public void CellClicked(int row, int col)
+    public async void CellClicked(int row, int col)
     {
         if (!_gameBoard.MakeMove(row, col)) return;
-        
+
         for (var i = 0; i < GameBoard.BoardSize; i++)
         {
             for (var j = 0; j < GameBoard.BoardSize; j++)
@@ -82,21 +98,48 @@ public class MainWindowViewModel : ViewModelBase
                 _cells[i][j].UpdateState(_gameBoard.GetCell(i, j));
             }
         }
-            
+
         UpdateGameStatus();
+
+        if (Settings.EnableBot)
+        {
+            await _bot.MakeBestMove(_gameBoard);
+            for (var i = 0; i < GameBoard.BoardSize; i++)
+            {
+                for (var j = 0; j < GameBoard.BoardSize; j++)
+                {
+                    _cells[i][j].UpdateState(_gameBoard.GetCell(i, j));
+                }
+            }
+
+            UpdateGameStatus();
+        }
     }
     
     private void UpdateGameStatus()
     {
         bool isBlackPlayer = _gameBoard.CurrentPlayer == CellState.Black;
-        CurrentPlayerText = $"Current player: {(isBlackPlayer ? "Black" : "White")}";
         ScoreText = $"Black: {_gameBoard.CountPieces(CellState.Black)} - White: {_gameBoard.CountPieces(CellState.White)}";
         
-        BackgroundColor = isBlackPlayer ? 
-            Color.Parse("#303030") :  // Light gray for Black's turn
-            Color.Parse("#E0E0E0");   // Dark gray for White's turn
-    
-        PlayerTextColor = isBlackPlayer ? Colors.Black : Colors.White;
+        if (_gameBoard.GameOver)
+        {
+            if (_gameBoard.CountPieces(CellState.Black) > _gameBoard.CountPieces(CellState.White))
+            {
+                ScoreText += " - Black wins!";
+            }
+            else if (_gameBoard.CountPieces(CellState.White) > _gameBoard.CountPieces(CellState.Black))
+            {
+                ScoreText += " - White wins!";
+            }
+            else
+            {
+                ScoreText += " - It's a draw!";
+            }
+        }
+        
+        CurrentPlayerText = $"Current player: {(isBlackPlayer ? "Black" : "White")}";
+
+        SystemBackgroundColor = Settings.DynamicThemeHandling();
     }
     
     private void NewGame()

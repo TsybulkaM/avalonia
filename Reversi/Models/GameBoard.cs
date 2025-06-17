@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 
-namespace Reversi.Models; 
+namespace Reversi.Models;
+
 public enum CellState
 {
     Empty,
@@ -17,6 +18,7 @@ public class GameBoard
     public const int BoardSize = 8;
     private CellState[,] _board;
     public CellState CurrentPlayer { get; private set; }
+    public bool GameOver { get; set; }
 
     public GameBoard()
     {
@@ -28,6 +30,8 @@ public class GameBoard
 
     private void InitializeBoard()
     {
+        GameOver = false;
+        
         for (var i = 0; i < BoardSize; i++)
         {
             for (var j = 0; j < BoardSize; j++)
@@ -50,15 +54,17 @@ public class GameBoard
 
     public bool MakeMove(int row, int col)
     {
-        if (GetCell(row, col) != CellState.Valid)
+        if (GetCell(row, col) != CellState.Valid || GameOver)
             return false;
         
         _board[row, col] = CurrentPlayer;
         FlipPieces(row, col, CurrentPlayer);
         
         CurrentPlayer = ChangePlayer(CurrentPlayer);
-
-        return HasValidMoves(CurrentPlayer);
+        
+        if (!HasValidMoves(CurrentPlayer)) GameOver = true;
+        
+        return true;
     }
 
     private bool IsValidMove(int row, int col, CellState player)
