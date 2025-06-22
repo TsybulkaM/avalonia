@@ -13,7 +13,7 @@ public enum CellState
 
 public class GameBoard
 {
-    private CellState ChangePlayer(CellState currentPlayer) => 
+    public CellState ChangePlayer(CellState currentPlayer) => 
         (currentPlayer == CellState.Black) ? CellState.White : CellState.Black;
     
     public const int BoardSize = 8;
@@ -24,7 +24,6 @@ public class GameBoard
     public GameBoard()
     {
         _board = new CellState[BoardSize, BoardSize];
-        CurrentPlayer = CellState.Black;
         InitializeBoard();
         HasValidMoves(CurrentPlayer);
     }
@@ -40,6 +39,8 @@ public class GameBoard
                 _board[i, j] = CellState.Empty;
             }
         }
+        
+        CurrentPlayer = CellState.Black;
         
         var midle = BoardSize / 2;
         _board[midle - 1, midle] = CellState.Black;
@@ -98,7 +99,7 @@ public class GameBoard
         return false;
     }
 
-    private bool WouldFlipInDirection(int row, int col, int drow, int dcol, CellState player)
+    public bool WouldFlipInDirection(int row, int col, int drow, int dcol, CellState player)
     {
         var opponent = ChangePlayer(CurrentPlayer);
         var r = row + drow;

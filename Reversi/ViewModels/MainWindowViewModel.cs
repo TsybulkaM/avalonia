@@ -107,6 +107,9 @@ public partial class MainWindowViewModel : ViewModelBase
         
         switch (Settings.SelectedBot)
         {
+            case BotType.Greedy:
+                _bot = new GreedyBot();
+                break;
             case BotType.Evaluation:
                 _bot = new EvaluationBot();
                 break;
@@ -172,22 +175,31 @@ public partial class MainWindowViewModel : ViewModelBase
 
         SystemBackgroundColor = Settings.DynamicThemeHandling(_gameBoard.CurrentPlayer);
     }
-    
+
     [RelayCommand]
     private async Task NewGame(Window owner)
     {
-        var dialog = new Views.ConfirmationDialog
+        var result = false;
+        
+        if (_gameBoard.GameOver)
+        { 
+            result = true;
+        }
+        else
         {
-            DataContext = new ConfirmationDialogViewModel("Are you sure you want to start a new game?")
-        };
-        
-        var result = await dialog.ShowDialog<bool>(owner);
-        
+            var dialog = new Views.ConfirmationDialog
+            {
+                DataContext = new ConfirmationDialogViewModel("Are you sure you want to start a new game?")
+            };
+
+            result = await dialog.ShowDialog<bool>(owner);
+        }
+
         if (result == true)
         {
-            _gameBoard = new GameBoard();
-            InitializeCells();
-            UpdateGameStatus();
+                _gameBoard = new GameBoard();
+                InitializeCells();
+                UpdateGameStatus();
         }
     }
 }

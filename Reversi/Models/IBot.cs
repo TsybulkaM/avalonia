@@ -4,7 +4,8 @@ namespace Reversi.Models;
 
 public enum BotType
 {
-    Evaluation
+    Greedy,
+    Evaluation,
 }
 
 public interface IBot
