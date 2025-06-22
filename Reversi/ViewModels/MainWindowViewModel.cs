@@ -1,11 +1,16 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using Reversi.Models;
+using Avalonia.Controls;
+
 
 namespace Reversi.ViewModels;
 
-public class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase
 {
     private GameBoard _gameBoard;
     private IBot _bot;
@@ -41,13 +46,13 @@ public class MainWindowViewModel : ViewModelBase
         set => SetProperty(ref _scoreText, value);
     }
     
-    public IRelayCommand NewGameCommand { get; }
-    
     public SettingsViewModel Settings { get; }
     
+    private bool _isInteractionBlocked;
     public MainWindowViewModel()
     {
         Settings = new SettingsViewModel();
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
         Settings.OnSettingsConfirmed = () => 
         {
             NewGameCommand.NotifyCanExecuteChanged();
@@ -57,17 +62,11 @@ public class MainWindowViewModel : ViewModelBase
         _gameBoard = new GameBoard();
         _cells = new ObservableCollection<ObservableCollection<CellViewModel>>();
         
-        NewGameCommand = new RelayCommand(NewGame, CanStartGame);
-        _bot = new EvaluationBot();
+        UpdateBotImplementation();
         
         SelectedTabIndex = 1;
         InitializeCells();
         UpdateGameStatus();
-    }
-    
-    private bool CanStartGame()
-    {
-        return Settings.SettingsSelected;
     }
     
     private void InitializeCells()
@@ -87,9 +86,38 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
     
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SettingsViewModel.SelectedBot))
+        {
+            UpdateBotImplementation();
+        }
+
+        if (e.PropertyName == nameof(SettingsViewModel.Theme) || e.PropertyName == nameof(SettingsViewModel.ThemeSwitching))
+        {
+            SystemBackgroundColor = Settings.DynamicThemeHandling(_gameBoard.CurrentPlayer);
+        }
+        {
+            SystemBackgroundColor = Settings.DynamicThemeHandling(_gameBoard.CurrentPlayer);
+        }
+    }
+    
+    private void UpdateBotImplementation()
+    {
+        
+        switch (Settings.SelectedBot)
+        {
+            case BotType.Evaluation:
+                _bot = new EvaluationBot();
+                break;
+        }
+    }
+    
     public async void CellClicked(int row, int col)
     {
-        if (!_gameBoard.MakeMove(row, col)) return;
+        if (_isInteractionBlocked || !_gameBoard.MakeMove(row, col)) return;
+        
+        _isInteractionBlocked = true;
 
         for (var i = 0; i < GameBoard.BoardSize; i++)
         {
@@ -101,7 +129,7 @@ public class MainWindowViewModel : ViewModelBase
 
         UpdateGameStatus();
 
-        if (Settings.EnableBot)
+        if (Settings.EnableBot && !_gameBoard.GameOver && _gameBoard.CurrentPlayer == CellState.White)
         {
             await _bot.MakeBestMove(_gameBoard);
             for (var i = 0; i < GameBoard.BoardSize; i++)
@@ -114,13 +142,16 @@ public class MainWindowViewModel : ViewModelBase
 
             UpdateGameStatus();
         }
+        
+        _isInteractionBlocked = false;
     }
-    
+
     private void UpdateGameStatus()
     {
         bool isBlackPlayer = _gameBoard.CurrentPlayer == CellState.Black;
-        ScoreText = $"Black: {_gameBoard.CountPieces(CellState.Black)} - White: {_gameBoard.CountPieces(CellState.White)}";
-        
+        ScoreText =
+            $"Black: {_gameBoard.CountPieces(CellState.Black)} - White: {_gameBoard.CountPieces(CellState.White)}";
+
         if (_gameBoard.GameOver)
         {
             if (_gameBoard.CountPieces(CellState.Black) > _gameBoard.CountPieces(CellState.White))
@@ -136,17 +167,28 @@ public class MainWindowViewModel : ViewModelBase
                 ScoreText += " - It's a draw!";
             }
         }
-        
+
         CurrentPlayerText = $"Current player: {(isBlackPlayer ? "Black" : "White")}";
 
-        SystemBackgroundColor = Settings.DynamicThemeHandling();
+        SystemBackgroundColor = Settings.DynamicThemeHandling(_gameBoard.CurrentPlayer);
     }
     
-    private void NewGame()
+    [RelayCommand]
+    private async Task NewGame(Window owner)
     {
-        _gameBoard = new GameBoard();
-        InitializeCells();
-        UpdateGameStatus();
+        var dialog = new Views.ConfirmationDialog
+        {
+            DataContext = new ConfirmationDialogViewModel("Are you sure you want to start a new game?")
+        };
+        
+        var result = await dialog.ShowDialog<bool>(owner);
+        
+        if (result == true)
+        {
+            _gameBoard = new GameBoard();
+            InitializeCells();
+            UpdateGameStatus();
+        }
     }
 }
 

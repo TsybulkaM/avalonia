@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Reversi.ViewModels"
+        x:Class="Reversi.Views.ConfirmationDialog"
+        x:DataType="vm:ConfirmationDialogViewModel"
+        Title="Confirmation"
+        CanResize="False" 
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterOwner"
+        
+        Background="#2d2d2d">
+
+    <Window.Styles>
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#444"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+    </Window.Styles>
+    
+    <StackPanel Margin="25" Spacing="20" >
+        
+        <TextBlock Text="{Binding Message}" FontSize="16" TextWrapping="Wrap" MaxWidth="350"/>
+        
+        <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+            <Button Name="YesButton" Classes="accent" Content="Yes" MinWidth="90"/>
+            
+            <Button Name="NoButton" Classes="secondary" Content="No" MinWidth="90"/>
+        </StackPanel>
+    </StackPanel>
+
+</Window>

@@ -8,67 +8,73 @@
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
-    
     <Grid Background="{Binding SystemBackgroundColor}" RowDefinitions="Auto,*,Auto">
         <Grid.Transitions>
             <Transitions>
                 <BrushTransition Property="Background" Duration="0:0:0.8" />
             </Transitions>
         </Grid.Transitions>
-        
+
         <TabControl SelectedIndex="{Binding SelectedTabIndex}">
-        <!-- Game status info -->
-        <TabItem Header="Game">
-            <StackPanel Grid.Row="0" Margin="10">
-                <TextBlock Text="{Binding CurrentPlayerText}" FontSize="18" FontWeight="Bold" Margin="0,0,0,5"/>
-                <TextBlock Text="{Binding ScoreText}" FontSize="16" Margin="0,0,0,10"/>
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="New Game" Command="{Binding NewGameCommand}" Padding="10,5"/>
+            <!-- Game status info -->
+            <TabItem Header="Board">
+                <StackPanel Grid.Row="0" Margin="10">
+                    <TextBlock Text="{Binding CurrentPlayerText}" FontSize="18" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding ScoreText}" FontSize="16" Margin="0,0,0,10"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="New Game" Command="{Binding NewGameCommand}" 
+                                CommandParameter="{Binding $parent[Window]}" Padding="10,5"/>
+                    </StackPanel>
+                    <!-- Game board -->
+                    <Border Grid.Row="1" Margin="10" BorderBrush="Black" BorderThickness="2"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ItemsControl ItemsSource="{Binding Cells}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ItemsControl ItemsSource="{Binding}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Command="{Binding CellClickCommand}" Width="60" Height="60"
+                                                        Padding="0" Margin="0" BorderThickness="1" BorderBrush="Black">
+                                                    <Ellipse Width="50" Height="50" Fill="{Binding CellBrush}"/>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
                 </StackPanel>
-                <!-- Game board -->
-                <Border Grid.Row="1" Margin="10" BorderBrush="Black" BorderThickness="2"
-                        HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <ItemsControl ItemsSource="{Binding Cells}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ItemsControl ItemsSource="{Binding}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Horizontal"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Button Command="{Binding CellClickCommand}" Width="60" Height="60"
-                                                    Padding="0" Margin="0" BorderThickness="1" BorderBrush="Black">
-                                                <Ellipse Width="50" Height="50" Fill="{Binding CellBrush}"/>
-                                            </Button>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Border>
-            </StackPanel>
-        </TabItem>
-        <TabItem Header="Settings">
-            <!-- Game settings -->
-            <StackPanel Margin="10">
-                <CheckBox Content="Enable Bot" IsChecked="{Binding Settings.EnableBot}" Margin="0,5"/>
-                <TextBlock Text="Theme:" Margin="0,10,0,5"/>
-                <ComboBox ItemsSource="{Binding Settings.Themes.Keys}" 
-                          SelectedItem="{Binding Settings.Theme}" />
-                <!-- Game instructions -->
-                <TextBlock Grid.Row="2" Margin="10" TextWrapping="Wrap"
-                           Text="How to play: Click on a valid cell to place your piece. Valid moves are those that capture opponent's pieces by 'sandwiching' them between your new piece and an existing piece."/>
-            </StackPanel>
-        </TabItem>
+            </TabItem>
+            <TabItem Header="Settings">
+                <!-- Game settings -->
+                <StackPanel Margin="10">
+                    <CheckBox Content="Enable Bot" IsChecked="{Binding Settings.EnableBot}" Margin="0,5"/>
+                    <StackPanel Spacing="5" IsVisible="{Binding Settings.EnableBot}" Margin="0,10,0,0">
+                        <TextBlock Text="Bot type:"/>
+                        <ComboBox ItemsSource="{Binding Settings.AvailableBots}"
+                                  SelectedItem="{Binding Settings.SelectedBot}"/>
+                    </StackPanel>
+                    <TextBlock Text="Theme:" Margin="0,10,0,5"/>
+                    <ComboBox ItemsSource="{Binding Settings.Themes.Keys}"
+                              SelectedItem="{Binding Settings.Theme}" />
+                    <CheckBox Content="Blinking theme" IsChecked="{Binding Settings.ThemeSwitching}" Margin="0,5"/>
+                    <!-- Game instructions -->
+                    <TextBlock Grid.Row="2" Margin="10" TextWrapping="Wrap"
+                               Text="How to play: Click on a valid cell to place your piece. Valid moves are those that capture opponent's pieces by 'sandwiching' them between your new piece and an existing piece."/>
+                </StackPanel>
+            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Reversi.Models;
 
@@ -11,6 +13,7 @@ public class SettingsViewModel : ViewModelBase
     public Action OnSettingsConfirmed { get; set; }
 
     private bool _settingsSelected;
+
     public bool SettingsSelected
     {
         get => _settingsSelected;
@@ -20,20 +23,34 @@ public class SettingsViewModel : ViewModelBase
             OnSettingsConfirmed?.Invoke();
         }
     }
-
+    
     private bool _enableBot;
     public bool EnableBot
     {
         get => _enableBot;
         set => SetProperty(ref _enableBot, value);
     }
-
-    public Dictionary<string, (string Color, bool IsBlinking)> Themes { get; } = new Dictionary<string, (string, bool)>
+    
+    private BotType _selectedBot;
+    public BotType SelectedBot
     {
-        { "Light", ("#5f5f5f", false) },
-        { "Dark", ("#959595", false) },
-        { "Blinking", ("#ff0000", true) }
+        get => _selectedBot;
+        set => SetProperty(ref _selectedBot, value);
+    }
+    
+    public BotType[] AvailableBots { get; }
+    public Dictionary<string, string> Themes { get; } = new Dictionary<string, string>
+    {
+        { "Light", "#959595" },
+        { "Dark", "#5f5f5f" }
     };
+    
+    private bool _enableThemeSwitching;
+    public bool ThemeSwitching
+    {
+        get => _enableThemeSwitching;
+        set => SetProperty(ref _enableThemeSwitching, value);
+    }
 
     private string _theme;
     public string Theme
@@ -42,24 +59,28 @@ public class SettingsViewModel : ViewModelBase
         set => SetProperty(ref _theme, value);
     }
 
-    public (string Color, bool IsBlinking) GetCurrentThemeAttributes()
+    public string GetCurrentThemeAttributes()
     {
-        return Themes.TryGetValue(Theme, out var attributes) ? attributes : default;
+        return Themes.TryGetValue(Theme, out var attributes) ? attributes : null;
     }
 
-    public IBrush DynamicThemeHandling()
+    public IBrush DynamicThemeHandling(CellState cellState)
     {
-        if (Themes.TryGetValue(Theme, out var theme) && theme.IsBlinking)
+        if (_enableThemeSwitching)
         {
-            Theme = Theme == "Light" ? "Dark" : "Light";
+            Theme = cellState == CellState.White ? "Dark" : "Light";
         }
 
-        return new SolidColorBrush(Color.Parse(theme.Color));
+        return new SolidColorBrush(Color.Parse(GetCurrentThemeAttributes()));
     }
 
     public SettingsViewModel()
     {
-        EnableBot = false;
-        Theme = "Blinking";
+        AvailableBots = (BotType[])Enum.GetValues(typeof(BotType));
+        SelectedBot = BotType.Evaluation;
+        
+        EnableBot = true;
+        Theme = "Dark";
+        ThemeSwitching = true;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Reversi.Models;
@@ -49,6 +50,11 @@ public class GameBoard
 
     public CellState GetCell(int row, int col)
     {
+        if (row < 0 || row >= BoardSize || col < 0 || col >= BoardSize)
+        {
+            throw new IndexOutOfRangeException($"Invalid cell position: ({row}, {col}).");
+        }
+
         return _board[row, col];
     }
 
