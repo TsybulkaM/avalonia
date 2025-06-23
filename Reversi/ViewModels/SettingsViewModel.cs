@@ -77,7 +77,7 @@ public class SettingsViewModel : ViewModelBase
     public SettingsViewModel()
     {
         AvailableBots = (BotType[])Enum.GetValues(typeof(BotType));
-        SelectedBot = BotType.Evaluation;
+        SelectedBot = BotType.Positional;
         
         EnableBot = true;
         Theme = "Dark";

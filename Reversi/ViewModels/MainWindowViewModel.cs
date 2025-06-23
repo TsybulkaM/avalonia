@@ -6,6 +6,7 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using Reversi.Models;
 using Avalonia.Controls;
+using Avalonia.Media.TextFormatting.Unicode;
 
 
 namespace Reversi.ViewModels;
@@ -104,16 +105,13 @@ public partial class MainWindowViewModel : ViewModelBase
     
     private void UpdateBotImplementation()
     {
-        
-        switch (Settings.SelectedBot)
+        _bot = Settings.SelectedBot switch
         {
-            case BotType.Greedy:
-                _bot = new GreedyBot();
-                break;
-            case BotType.Evaluation:
-                _bot = new EvaluationBot();
-                break;
-        }
+            BotType.Greedy => new GreedyBot(),
+            BotType.Positional => new PositionalBot(),
+            BotType.MiniMax => new MiniMaxBot(),
+            _ => _bot
+        };
     }
     
     public async void CellClicked(int row, int col)

@@ -18,7 +18,7 @@ public class GameBoard
     
     public const int BoardSize = 8;
     private CellState[,] _board;
-    public CellState CurrentPlayer { get; private set; }
+    public CellState CurrentPlayer { get; internal set; }
     public bool GameOver { get; set; }
 
     public GameBoard()
@@ -159,7 +159,6 @@ public class GameBoard
     private bool HasValidMoves(CellState player)
     {
         var hasValidMove = false;
-        var validMoves = new List<(int, int)>();
         for (var i = 0; i < BoardSize; i++)
         {
             for (var j = 0; j < BoardSize; j++)
@@ -189,5 +188,40 @@ public class GameBoard
             }
         }
         return count;
+    }
+
+    public List<(int, int)> GetValidMoves(CellState player)
+    {
+        var validMoves = new List<(int, int)>();
+        
+        for (var i = 0; i < BoardSize; i++)
+        {
+            for (var j = 0; j < BoardSize; j++)
+            {
+                if (IsValidMove(i, j, player))
+                {
+                    validMoves.Add((i, j));
+                }
+            }
+        }
+        
+        return validMoves;
+    }
+    
+    public GameBoard CloneBoard()
+    {
+        var newBoard = new GameBoard();
+        newBoard.CurrentPlayer = CurrentPlayer;
+        newBoard.GameOver = GameOver;
+        
+        for (var i = 0; i < BoardSize; i++)
+        {
+            for (var j = 0; j < BoardSize; j++)
+            {
+                newBoard._board[i, j] = _board[i, j];
+            }
+        }
+        
+        return newBoard;
     }
 }
