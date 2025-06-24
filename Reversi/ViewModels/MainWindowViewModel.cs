@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using Reversi.Models;
 using Avalonia.Controls;
-using Avalonia.Media.TextFormatting.Unicode;
 
 
 namespace Reversi.ViewModels;
@@ -65,7 +63,6 @@ public partial class MainWindowViewModel : ViewModelBase
         
         UpdateBotImplementation();
         
-        SelectedTabIndex = 1;
         InitializeCells();
         UpdateGameStatus();
     }
